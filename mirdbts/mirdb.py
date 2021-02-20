@@ -126,9 +126,7 @@ if __name__ == '__main__':
 
     start = time.time()
     main(20)
-    print('10 iterations:', time.time() - start)
+    print('20 iterations:', time.time() - start)
 
 
-# 5 iterations: 183.00848984718323
-# 10 iterations: 391.16384530067444
-# 15 iterations: 814.8727056980133
+# 1 iteration approximately 53 sec
