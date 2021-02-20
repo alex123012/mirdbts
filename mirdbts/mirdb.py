@@ -1,5 +1,6 @@
 import pandas as pd
 import requests
+import time
 from bs4 import BeautifulSoup as bs
 
 
@@ -24,8 +25,7 @@ class CustomMiRDB:
     def __filefind(self, temp):
 
         soup = bs(temp.text, "html.parser")
-        table = soup.findAll("input")
-        return table[0]['value']
+        return soup.findAll("input", {'name': 'fileName'})[0]['value']
 
     def __startsession(self):
 
@@ -39,12 +39,13 @@ class CustomMiRDB:
 
         self.filename = self.__filefind(temp)
 
+        # print(temp.text)
         data = {'.submit': 'Retrieve Prediction Result',
                 'fileName': self.filename}
         self.responce = self.session.post(self.url, data=data)
 
         data = {".submit": "Return to Custom Prediction"}
-        self.session.post(self.url, data=data)
+        self.session.post('http://mirdb.org/custom.html', data=data)
 
     def __repr__(self):
         return self.responce.text
@@ -54,15 +55,16 @@ class CustomMiRDB:
 
 
 class Mirdb(pd.DataFrame):
-    def __init__(self, html, html_dict=None):
+    def __init__(self, html, mirna=True, html_dict=None):
 
         __rows, __headers = self.__get_table_rows(html, html_dict)
 
         super().__init__(__rows, columns=__headers)
         try:
             self.set_index('Target Rank', inplace=True)
-            self.drop(['Target Detail', 'miRNA Name', 'Gene Description'],
-                      axis=1, inplace=True)
+            if mirna:
+                self.drop(['Target Detail', 'miRNA Name', 'Gene Description'],
+                          axis=1, inplace=True)
         except KeyError:
             pass
 
@@ -99,3 +101,34 @@ class Mirdb(pd.DataFrame):
         #     return f'<a target="_blank" href="{x['href']}">{res}</a>'
 
         return res
+
+
+def main(x=5):
+    for i in range(x):
+        html = CustomMiRDB('TGCATGCATGCGTCAGCTAGCAT')
+        df = Mirdb(html)
+        df.head()
+        # time.sleep(10)
+
+
+if __name__ == '__main__':
+    start = time.time()
+    main(5)
+    print('5 iterations:', time.time() - start)
+
+    start = time.time()
+    main(10)
+    print('10 iterations:', time.time() - start)
+
+    start = time.time()
+    main(15)
+    print('15 iterations:', time.time() - start)
+
+    start = time.time()
+    main(20)
+    print('10 iterations:', time.time() - start)
+
+
+# 5 iterations: 183.00848984718323
+# 10 iterations: 391.16384530067444
+# 15 iterations: 814.8727056980133
