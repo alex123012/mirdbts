@@ -159,10 +159,13 @@ class CustomSearch:
                 'subChoice': self.subChoice,
                 'customSub': self.customSub,
                 '.submit': 'Go'}
+        
         temp = self.session.post(self.url, data=data)
-
-        self.filename = self.__filefind(temp)
-
+        try:
+            self.filename = self.__filefind(temp)
+        except:
+            self.__responce = temp
+            return None
         data = {'.submit': 'Retrieve Prediction Result',
                 'fileName': self.filename}
         self.__responce = self.session.post(self.url, data=data)
